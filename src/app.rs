@@ -1,4 +1,4 @@
-//! A small, standalone menu-bar application indicator for Rift.
+//! The menu-bar indicator application.
 //!
 //! Rift owns the window state; this process only queries it over Mach IPC and
 //! refreshes when Rift publishes a relevant event.
@@ -63,7 +63,6 @@ define_class!(
                 }
             }
         }
-
     }
 );
 
@@ -160,18 +159,18 @@ define_class!(
                 let mut applications = Vec::new();
                 let mut group_icons = Vec::new();
                 for window in &workspace.windows {
-                        let bundle_id = window.bundle_id.as_deref();
-                        let app_name = window.app_name.as_deref();
-                        let Some(key) = bundle_id.or(app_name) else {
-                            continue;
-                        };
-                        if !seen.insert(key.to_owned()) {
-                            continue;
-                        }
-                        applications.push((
-                            bundle_id.map(str::to_owned),
-                            app_name.unwrap_or(key).to_owned(),
-                        ));
+                    let bundle_id = window.bundle_id.as_deref();
+                    let app_name = window.app_name.as_deref();
+                    let Some(key) = bundle_id.or(app_name) else {
+                        continue;
+                    };
+                    if !seen.insert(key.to_owned()) {
+                        continue;
+                    }
+                    applications.push((
+                        bundle_id.map(str::to_owned),
+                        app_name.unwrap_or(key).to_owned(),
+                    ));
                 }
 
                 applications.sort_by(|left, right| {
@@ -258,7 +257,7 @@ fn application_icon(
     unsafe { msg_send![&*workspace, iconForFile: &*path] }
 }
 
-fn main() {
+pub fn run() {
     let mtm = MainThreadMarker::new().expect("must run on the macOS main thread");
     let application = NSApplication::sharedApplication(mtm);
     let _ = application.setActivationPolicy(NSApplicationActivationPolicy::Accessory);
